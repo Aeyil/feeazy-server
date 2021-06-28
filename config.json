@@ -1,9 +1,9 @@
 {
   "database": {
-    "host": "ec2-54-170-109-0.eu-west-1.compute.amazonaws.com",
-    "user": "hxzkvwqqqyafov",
-    "password": "c2b34aef358efe7aaccd923b51581b4d98f48266e5c63715765ed6bb68b8ccff",
-    "db":"dcpv7vvlirf5n0"
+    "host": "ec2-34-240-75-196.eu-west-1.compute.amazonaws.com",
+    "user": "bhsuithqbjncdu",
+    "password": "ba451a30c88e3ebf85f45d8ea178ebcbf64d639d11748bff69e5d1c4b2ead44c",
+    "db":"db77r5lt738ci2"
   },
   "auth": {
     "token": "d8342017e5f770a96b0a270ae9fb43d3",
