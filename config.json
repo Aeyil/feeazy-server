@@ -1,0 +1,12 @@
+{
+  "database": {
+    "host": "ec2-54-170-109-0.eu-west-1.compute.amazonaws.com",
+    "user": "hxzkvwqqqyafov",
+    "password": "c2b34aef358efe7aaccd923b51581b4d98f48266e5c63715765ed6bb68b8ccff",
+    "db":"dcpv7vvlirf5n0"
+  },
+  "auth": {
+    "token": "d8342017e5f770a96b0a270ae9fb43d3",
+    "expiration": "1h"
+  }
+}
