@@ -9,7 +9,8 @@ let initDb = new Promise((resolve, reject) => {
         host: cfg.database.host,
         user: cfg.database.user,
         password: cfg.database.password,
-        database: cfg.database.db
+        database: cfg.database.db,
+        ssl: true
     });
     client.connect()
         .then(() => resolve())
