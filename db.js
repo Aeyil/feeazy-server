@@ -1,32 +1,34 @@
 let pgp = require('pg-promise');
-const { Client } = require('pg');
+const { Pool, Client } = require('pg');
 
-let client;
+let pool;
 
 let initDb = new Promise((resolve, reject) => {
-    client = new Client({
+    pool = new Pool({
         connectionString: process.env.DATABASE_URL,
         ssl: {
             rejectUnauthorized: false
-        }
+        },
+        max: 15,
+        idleTimeoutMillis: 15000
     });
-    client.connect()
-        .then(() => resolve())
-        .catch((err) => {
-            console.log('DB CONNECTION ERROR\n'+err.stack);
+    pool.connect()
+        .then(client => {
+            client.release();
+            resolve();
+        })
+        .catch(() => {
             reject();
         });
 });
 
-function getDb() {
-    if(!client) {
-        console.log('ERROR! DB NOT INITIALIZED YET.');
-        return;
-    }
-    return client;
-}
+let getClient = new Promise((resolve,reject) => {
+    pool.connect()
+        .then(client => resolve(client))
+        .catch(() => reject());
+});
 
 module.exports = {
-    getDb,
+    getClient,
     initDb
 }
