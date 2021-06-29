@@ -10,7 +10,7 @@ router.use(function(req,res,next){
           return res.status(401).json({message: "Authentication failed."});
       }
       else{
-          req.userData = JSON.parse("{\"user_id\": \"" + decoded.id + "\"}");
+          req.userData = JSON.parse("{\"id\": \"" + decoded.id + "\"}");
           next();
       }
    });
