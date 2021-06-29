@@ -14,7 +14,7 @@ router.post('', function(req,res){
     //   req.body.password
     db.getClient
         .then(client => {
-            let query1 = 'SELECT id FROM user WHERE email = $1';
+            let query1 = 'SELECT u.id FROM "user" u WHERE u.email = $1';
             let values1 = [req.body.email];
             client.query(query1,values1)
                 .then(result => {
@@ -33,7 +33,7 @@ router.post('', function(req,res){
                                 client.release();
                                 return res.status(500).json({ message: 'Password Hash could not be created.' });
                             }
-                            let query2 = 'INSERT INTO user (email,name,password,salt) VALUES ($1,$2,$3,$4) RETURNING id';
+                            let query2 = 'INSERT INTO "user" (email,name,password,salt) VALUES ($1,$2,$3,$4) RETURNING id';
                             let values2 = [req.body.email,req.body.name,hash,salt];
                             client.query(query2,values2)
                                 .then(result => {
@@ -53,7 +53,9 @@ router.post('', function(req,res){
                     return res.status(400).json({ message: 'Email parameter was not valid.'});
                 });
         })
-        .catch(() => res.status(503).json({ message: 'Database connection currently not available.' }));
+        .catch(() => {
+            return res.status(503).json({ message: 'Database connection currently not available.' });
+        });
 });
 
 module.exports = router;

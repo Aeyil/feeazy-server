@@ -13,7 +13,7 @@ router.post('', function(req,res){
     //   req.body.password
    db.getClient
        .then(client => {
-           let query = 'SELECT u.id, u.email, u.password FROM user u WHERE u.email = $1';
+           let query = 'SELECT u.id, u.email, u.password FROM "user" u WHERE u.email = $1';
            let values = [req.body.email];
            client.query(query,values)
                .then(result => {
@@ -37,7 +37,9 @@ router.post('', function(req,res){
                    return res.status(500).json({ message: 'Email parameter was not valid.'});
                })
        })
-       .catch(() => res.status(503).json({ message: 'Database connection currently not available.' }))
+       .catch(() => {
+           return res.status(503).json({ message: 'Database connection currently not available.' });
+       })
 });
 
 module.exports = router;
