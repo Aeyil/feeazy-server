@@ -10,10 +10,21 @@ app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 3000;
 
-// TODO: Routes to Functionality
+const authMiddlewareRoute = require('./routes/auth');
+const registerRoute = require('./routes/register');
+const loginRoute = require('./routes/login');
+const groupRoute = require('./routes/group');
+const feeRoute = require('./routes/fee');
+const presetRoute = require('./routes/preset');
+
+app.use('/register',registerRoute);
+app.use('/login',loginRoute);
+app.use('/group',authMiddlewareRoute,groupRoute);
+app.use('/fee',authMiddlewareRoute,feeRoute);
+app.use('/preset',authMiddlewareRoute,presetRoute);
 
 app.use("*", (req,res) =>{
-    res.send("Welcome to the Feeasy Server!");
+    res.send("Welcome to the Feeazy Server!");
 })
 
 db.initDb.then(() => {
