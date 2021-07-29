@@ -22,11 +22,13 @@ let initDb = new Promise((resolve, reject) => {
         });
 });
 
-let getClient = new Promise((resolve,reject) => {
-    pool.connect()
-        .then(client => resolve(client))
-        .catch(() => reject());
-});
+let getClient = function (){
+    return new Promise((resolve,reject) => {
+        pool.connect()
+            .then(client => resolve(client))
+            .catch(() => reject());
+    });
+}
 
 module.exports = {
     getClient,

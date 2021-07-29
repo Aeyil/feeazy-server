@@ -16,7 +16,7 @@ router.post('', function(req,res){
     console.log(req.body.name);
     console.log(req.body.password);
     console.log(req.body);
-    db.getClient
+    db.getClient()
         .then(client => {
             let query1 = 'SELECT u.id FROM "user" u WHERE u.email = $1';
             let values1 = [req.body.email];

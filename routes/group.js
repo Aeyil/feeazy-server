@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('', function(req,res){
     // Expected Parameters
     //   req.body.id (optional)
-    db.getClient
+    db.getClient()
         .then(client => {
             if('id' in req.body){ // TODO: working?
                 let query1 = 'SELECT * FROM part_of WHERE group_id = $1 AND user_id = $2';
@@ -65,7 +65,7 @@ router.post('', function(req,res){
     //   req.body.id (optional)
     //   req.body.leader_id (optional)
     //   req.body.name
-    db.getClient
+    db.getClient()
         .then(client => {
             if('id' in req.body){ // TODO: working?
                 let query1 = 'SELECT grp.leader_id FROM "group" grp WHERE grp.id = $1';
@@ -157,7 +157,7 @@ router.put('', function(req,res){
     // Expected Parameters
     //   req.body.id
     //   req.body.email
-    db.getClient
+    db.getClient()
         .then(client => {
             let query1 = 'SELECT grp.leader_id FROM "group" grp WHERE grp.id = $1';
             let values1 = [req.body.id];
@@ -207,7 +207,7 @@ router.delete('', function(req,res){
     // TODO: THIS SHOULD BE A TRANSACTION
     // Expected Parameters
     //   req.body.id
-    db.getClient
+    db.getClient()
         .then(client => {
             let query1 = 'SELECT grp.leader_id FROM "group" grp WHERE grp.id = $1';
             let values1 = [req.body.id];

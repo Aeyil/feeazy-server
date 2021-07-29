@@ -11,7 +11,7 @@ router.post('', function(req,res){
     // Expected Parameters
     //   req.body.email
     //   req.body.password
-   db.getClient
+   db.getClient()
        .then(client => {
            let query = 'SELECT u.id, u.email, u.password FROM "user" u WHERE u.email = $1';
            let values = [req.body.email];
