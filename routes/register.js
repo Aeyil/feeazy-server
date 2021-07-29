@@ -12,6 +12,10 @@ router.post('', function(req,res){
     //   req.body.email
     //   req.body.name
     //   req.body.password
+    console.log(req.body.email);
+    console.log(req.body.name);
+    console.log(req.body.password);
+    console.log(req.body);
     db.getClient
         .then(client => {
             let query1 = 'SELECT u.id FROM "user" u WHERE u.email = $1';
