@@ -23,47 +23,52 @@ router.post('', function(req,res){
             client.query(query1,values1)
                 .then(result => {
                     if(result.rowCount > 0){
-                        client.release();
                         console.log("1");
+                        client.release();
                         return res.status(400).json({ message: ' Email is already in use.' });
                     }
                     const saltRounds = 10;
                     bcrypt.genSalt(saltRounds, function(err,salt){
                         if(err){
-                            client.release();
                             console.log("2");
+                            console.log(err);
+                            client.release();
                             return res.status(500).json({ message: 'Password Salt could not be generated' });
                         }
                         bcrypt.hash(req.body.password,salt, function(err,hash){
                             if(err){
-                                client.release();
                                 console.log("3");
+                                console.log(err);
+                                client.release();
                                 return res.status(500).json({ message: 'Password Hash could not be created.' });
                             }
                             let query2 = 'INSERT INTO "user" (email,name,password,salt) VALUES ($1,$2,$3,$4) RETURNING id';
                             let values2 = [req.body.email,req.body.name,hash,salt];
                             client.query(query2,values2)
                                 .then(result => {
-                                    client.release();
                                     console.log("4");
+                                    client.release();
                                     let token = jwt.sign({id: result.rows[0].id}, cfg.auth.token, {expiresIn: cfg.auth.expiration});
                                     return res.status(201).json(builder.buildUserLoggedIn(result.rows[0].id,req.body.name,token));
                                 })
                                 .catch(error => {
-                                    client.release();
                                     console.log("5");
+                                    console.log(error);
+                                    client.release();
                                     return res.status(500).json({ message: 'Email is now taken.' });
                                 });
                         });
                     });
                 })
-                .catch(() => {
-                    client.release();
+                .catch((error) => {
                     console.log("6");
+                    console.log(error);
+                    client.release();
                     return res.status(400).json({ message: 'Email parameter was not valid.'});
                 });
         })
-        .catch(() => {
+        .catch((error) => {
+            console.log(error);
             return res.status(503).json({ message: 'Database connection currently not available.' });
         });
 });
