@@ -12,7 +12,8 @@ router.get('',function (req,res){
     db.getClient()
         .then((client) =>{
             console.log("TEST1");
-            return res.status(200).json({ message: "part1 complete"});
+            res.status(200).json({ message: "part1 complete"});
+            return "Hello";
         },(error) => {
             console.log("TESTERR");
             return res.status(404).json();
