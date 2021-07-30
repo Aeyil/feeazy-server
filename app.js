@@ -14,12 +14,14 @@ const authMiddlewareRoute = require('./routes/auth');
 const registerRoute = require('./routes/register');
 const loginRoute = require('./routes/login');
 const groupRoute = require('./routes/group');
+const inviteRoute = require('./routes/invite');
 const feeRoute = require('./routes/fee');
 const presetRoute = require('./routes/preset');
 
 app.use('/register',registerRoute);
 app.use('/login',loginRoute);
 app.use('/group',authMiddlewareRoute,groupRoute);
+app.use('/invite',authMiddlewareRoute,inviteRoute);
 app.use('/fee',authMiddlewareRoute,feeRoute);
 app.use('/preset',authMiddlewareRoute,presetRoute);
 

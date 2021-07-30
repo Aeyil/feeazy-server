@@ -11,7 +11,7 @@ router.get('',function (req,res){
     console.log("Starting preset retrieval...");
     console.log(req.body);
     db.getClient().then((client) =>{
-        let query1 = 'SELECT * FROM "part_of" po WHERE po."group_id" = $1 AND po."user_id" = $2';
+        let query1 = 'SELECT po.group_id FROM part_of po WHERE po.group_id = $1 AND po.user_id = $2';
         let values1 = [req.body.group_id,req.userData.id];
         client.query(query1,values1).then((result1 => {
             if(result1.rowCount === 0){
@@ -19,7 +19,7 @@ router.get('',function (req,res){
                 client.release();
                 return res.status(403).json({message: 'Group does not exist or is not accessible.'});
             }
-            let query2 = 'SELECT pr.id,pr.name,pr.amount FROM preset pr WHERE pr."group_id" = $1';
+            let query2 = 'SELECT pr.id,pr.name,pr.amount FROM preset pr WHERE pr.group_id = $1';
             let values2 = [req.body.group_id];
             client.query(query2,values2).then((result2) => {
                 console.log("Preset retrieval successful.");
@@ -53,7 +53,7 @@ router.post('',function (req,res){
     console.log("Starting preset creation...");
     console.log(req.body);
     db.getClient().then((client) =>{
-        let query1 = 'SELECT * FROM "part_of" po WHERE po."group_id" = $1 AND po."user_id" = $2';
+        let query1 = 'SELECT po.group_id FROM part_of po WHERE po.group_id = $1 AND po.user_id = $2';
         let values1 = [req.body.group_id,req.userData.id];
         client.query(query1,values1).then((result1 => {
             if(result1.rowCount === 0){
@@ -95,7 +95,7 @@ router.put('',function (req,res){
     console.log("Starting preset update...");
     console.log(req.body);
     db.getClient().then((client) => {
-        let query1 = 'SELECT po.* FROM "part_of" po, preset pr WHERE pr.id = $1 AND po."group_id" = pr."group_id" AND po."user_id" = $2';
+        let query1 = 'SELECT po.group_id FROM part_of po, preset pr WHERE pr.id = $1 AND po.group_id = pr.group_id AND po.user_id = $2';
         let values1 = [req.body.id,req.userData.id];
         client.query(query1,values1).then((result1) => {
             if (result1.rowCount === 0) {
@@ -135,7 +135,7 @@ router.delete('',function (req,res){
     console.log("Starting preset deletion...");
     console.log(req.body);
     db.getClient().then((client) => {
-        let query1 = 'SELECT po.* FROM "part_of" po, preset pr WHERE pr.id = $1 AND po."group_id" = pr."group_id" AND po."user_id" = $2';
+        let query1 = 'SELECT po.group_id FROM part_of po, preset pr WHERE pr.id = $1 AND po.group_id = pr.group_id AND po.user_id = $2';
         let values1 = [req.body.id,req.userData.id];
         client.query(query1,values1).then((result1) => {
             if(result1.rowCount === 0){

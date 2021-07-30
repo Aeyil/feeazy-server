@@ -6,6 +6,12 @@ function buildUserLoggedIn(id,name,token){
     return user;
 }
 
+function buildGroups(rows){
+    let groups = [];
+    rows.forEach(row => groups.push(buildGroup(row)));
+    return groups;
+}
+
 function buildGroup(row){
     let group = {};
     group.id = row.id;
@@ -15,15 +21,16 @@ function buildGroup(row){
     return group;
 }
 
-function buildMember(result){
+function buildMember(row){
     let member = {};
-    member.id = result.id;
-    member.name = result.name;
+    member.id = row.id;
+    member.name = row.name;
     return member;
 }
 
-function buildMembers(result){
+function buildMembers(rows){
     let members = [];
+    rows.forEach(row => members.push(buildMember(row)));
     return members;
 }
 
@@ -75,9 +82,10 @@ function buildPresetRaw(id,name,amount){
 
 module.exports = {
     buildUserLoggedIn,
+    buildGroups,
     buildGroup,
-    buildMember,
     buildMembers,
+    buildMember,
     buildFees,
     buildFee,
     buildFeeRaw,
