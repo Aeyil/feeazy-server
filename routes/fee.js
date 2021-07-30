@@ -4,7 +4,7 @@ const router = express.Router();
 
 router.get('',function (req,res,next){
     console.log("First");
-    //next();
+    next();
 });
 
 router.get('',function (req,res,next){
