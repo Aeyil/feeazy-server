@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 3000;
 const authMiddlewareRoute = require('./routes/auth');
 const registerRoute = require('./routes/register');
 const loginRoute = require('./routes/login');
+const userRoute = require('./routes/user');
 const groupRoute = require('./routes/group');
 const inviteRoute = require('./routes/invite');
 const feeRoute = require('./routes/fee');
@@ -20,6 +21,7 @@ const presetRoute = require('./routes/preset');
 
 app.use('/register',registerRoute);
 app.use('/login',loginRoute);
+app.use('/user',authMiddlewareRoute,userRoute);
 app.use('/group',authMiddlewareRoute,groupRoute);
 app.use('/invite',authMiddlewareRoute,inviteRoute);
 app.use('/fee',authMiddlewareRoute,feeRoute);

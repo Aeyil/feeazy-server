@@ -21,16 +21,16 @@ function buildGroup(row){
     return group;
 }
 
-function buildMember(row){
+function buildUser(row){
     let member = {};
     member.id = row.id;
     member.name = row.name;
     return member;
 }
 
-function buildMembers(rows){
+function buildUsers(rows){
     let members = [];
-    rows.forEach(row => members.push(buildMember(row)));
+    rows.forEach(row => members.push(buildUser(row)));
     return members;
 }
 
@@ -84,8 +84,8 @@ module.exports = {
     buildUserLoggedIn,
     buildGroups,
     buildGroup,
-    buildMembers,
-    buildMember,
+    buildUsers,
+    buildUser,
     buildFees,
     buildFee,
     buildFeeRaw,

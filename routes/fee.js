@@ -14,7 +14,7 @@ router.get('',function (req,res,next){
     console.log("Starting fee retrieval (group)...");
     console.log(req.body);
     db.getClient().then((client) =>{
-        let query1 = 'SELECT * FROM "part_of" po WHERE po."group_id" = $1 AND po."user_id" = $2';
+        let query1 = 'SELECT * FROM part_of po WHERE po.group_id = $1 AND po.user_id = $2';
         let values1 = [req.body.group_id,req.userData.id];
         client.query(query1,values1).then((result1 => {
             if(result1.rowCount === 0){
@@ -22,7 +22,7 @@ router.get('',function (req,res,next){
                 client.release();
                 return res.status(403).json({message: 'Group does not exist or is not accessible.'});
             }
-            let query2 = 'SELECT fe.* FROM fee fe WHERE fe."group_id" = $1';
+            let query2 = 'SELECT fe.* FROM fee fe WHERE fe.group_id = $1';
             let values2 = [req.body.group_id];
             client.query(query2,values2).then((result2) => {
                 console.log("Fee retrieval (group) successful.");
@@ -54,7 +54,7 @@ router.get('',function (req,res){
     console.log("Starting fee retrieval (user)...");
     console.log(req.body);
     db.getClient().then((client) =>{
-        let query1 = 'SELECT fe.* FROM fee fe WHERE fe."user_id" = $1';
+        let query1 = 'SELECT fe.* FROM fee fe WHERE fe.user_id = $1';
         let values1 = [req.userData.id];
         client.query(query1,values1).then((result1) => {
             console.log("Fee retrieval (user) successful.");
@@ -83,7 +83,7 @@ router.post('',function (req,res){
     console.log("Starting fee creation...");
     console.log(req.body);
     db.getClient().then((client) =>{
-        let query1 = 'SELECT * FROM "part_of" po WHERE po."group_id" = $1 AND po."user_id" = $2';
+        let query1 = 'SELECT * FROM part_of po WHERE po.group_id = $1 AND po.user_id = $2';
         let values1 = [req.body.group_id,req.userData.id];
         client.query(query1,values1).then((result1 => {
             if(result1.rowCount === 0){
@@ -124,7 +124,7 @@ router.put('',function (req,res){
     console.log("Starting fee update...");
     console.log(req.body);
     db.getClient().then((client) => {
-        let query1 = 'SELECT * FROM "part_of" po, fee fe WHERE fe.id = $1 AND po."group_id" = fe."group_id" AND po."user_id" = $2';
+        let query1 = 'SELECT * FROM part_of po, fee fe WHERE fe.id = $1 AND po.group_id = fe.group_id AND po.user_id = $2';
         let values1 = [req.body.id,req.userData.id];
         client.query(query1,values1).then((result1) => {
             if(result1.rowCount === 0){
@@ -132,7 +132,7 @@ router.put('',function (req,res){
                 client.release();
                 return res.status(403).json({message: 'Fee does not exist or is not accessible.'});
             }
-            let query2 = 'UPDATE fee fe SET fe.status = $1 WHERE pr.id = $2';
+            let query2 = 'UPDATE fee fe SET status = $1 WHERE fe.id = $2';
             let values2 = [req.body.status,req.body.id];
             client.query(query2,values2).then((result2) =>{
                 console.log("Fee update successful.")
@@ -164,7 +164,7 @@ router.delete('',function (req,res){
     console.log("Starting fee deletion...");
     console.log(req.body);
     db.getClient().then((client) => {
-        let query1 = 'SELECT * FROM "part_of" po, fee fe WHERE fe.id = $1 AND po."group_id" = fe."group_id" AND po."user_id" = $2';
+        let query1 = 'SELECT * FROM part_of po, fee fe WHERE fe.id = $1 AND po.group_id = fe.group_id AND po.user_id = $2';
         let values1 = [req.body.id,req.userData.id];
         client.query(query1,values1).then((result1) => {
             if(result1.rowCount === 0){

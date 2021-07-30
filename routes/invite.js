@@ -33,7 +33,7 @@ router.post('', function(req,res){
                 client.query(query3,values3).then(result4 => {
                     console.log("User invite successful.");
                     client.release();
-                    return res.status(200).json(builder.buildMember(result2.rows[0]));
+                    return res.status(200).json(builder.buildUser(result2.rows[0]));
                 }).catch((error) => {
                     console.log("WARN: User is already in group.");
                     console.log(error);

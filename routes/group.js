@@ -67,6 +67,7 @@ router.get('', function(req,res){
 //------------------------------------ OLD PART --------------------------------------------------------
 // TODO: UPDATE THIS PART
 
+// TODO: Split
 router.post('', function(req,res){
     // TODO: THIS SHOULD BE A TRANSACTION
     // Expected Parameters
