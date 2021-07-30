@@ -13,7 +13,8 @@ router.get('',function (req,res){
         .then((client) =>{
             console.log("TEST1");
             return "Hello";
-        },(error) => {
+        })
+        .catch((error) => {
             console.log("TESTERR");
             return res.status(404).json();
         })
