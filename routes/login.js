@@ -13,42 +13,38 @@ router.post('', function(req,res){
     //   req.body.password
     console.log("Starting login...");
     console.log(req.body);
-   db.getClient()
-       .then(client => {
-           let query = 'SELECT u.id, u.email, u.password FROM "user" u WHERE u.email = $1';
-           let values = [req.body.email];
-           client.query(query,values)
-               .then(result => {
-                   if(result.rowCount === 0){
-                       console.log("WARN: Incorrect email given.");
-                       client.release();
-                       return res.status(400).json({ message: 'Email and/or Password not valid.'});
-                   }
-                   bcrypt.compare(req.body.password, result.rows[0].password, function (err, bres){
-                       client.release();
-                       if(bres){
-                           console.log("Login successful.")
-                           let token = jwt.sign({id: result.rows[0].id}, cfg.auth.token, {expiresIn: cfg.auth.expiration});
-                           return res.status(200).json(builder.buildUserLoggedIn(result.rows[0].id,req.body.name,token));
-                       }
-                       else{
-                           console.log("WARN: Incorrect password given.");
-                           return res.status(400).json({ message: 'Email and/or Password not valid.'});
-                       }
-                   });
-               })
-               .catch((error) => {
-                   console.log("WARN: email parameter not valid.");
-                   console.log(error);
-                   client.release();
-                   return res.status(500).json({ message: 'Email parameter was not valid.'});
-               })
-       })
-       .catch((error) => {
-           console.log("ERR: Couldn't checkout db client.");
+   db.getClient().then(client => {
+       let query = 'SELECT u.id, u.email, u.password FROM "user" u WHERE u.email = $1';
+       let values = [req.body.email];
+       client.query(query,values).then(result => {
+           if(result.rowCount === 0){
+               console.log("WARN: Incorrect email given.");
+               client.release();
+               return res.status(400).json({ message: 'Email and/or Password not valid.'});
+           }
+           bcrypt.compare(req.body.password, result.rows[0].password, function (err, bres){
+               client.release();
+               if(bres){
+                   console.log("Login successful.")
+                   let token = jwt.sign({id: result.rows[0].id}, cfg.auth.token, {expiresIn: cfg.auth.expiration});
+                   return res.status(200).json(builder.buildUserLoggedIn(result.rows[0].id,req.body.name,token));
+               }
+               else{
+                   console.log("WARN: Incorrect password given.");
+                   return res.status(400).json({ message: 'Email and/or Password not valid.'});
+               }
+           });
+       }).catch((error) => {
+           console.log("WARN: email parameter not valid.");
            console.log(error);
-           return res.status(503).json({ message: 'Database connection currently not available.' });
+           client.release();
+           return res.status(500).json({ message: 'Email parameter was not valid.'});
        })
+   }).catch((error) => {
+       console.log("ERR: Couldn't checkout db client.");
+       console.log(error);
+       return res.status(503).json({ message: 'Database connection currently not available.' });
+   })
 });
 
 module.exports = router;
