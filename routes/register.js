@@ -44,7 +44,7 @@ router.post('', function(req,res){
                             let values2 = [req.body.email,req.body.name,hash,salt];
                             client.query(query2,values2)
                                 .then(result => {
-                                    console.log("SUCCESS.");
+                                    console.log("Registration successful.")
                                     client.release();
                                     let token = jwt.sign({id: result.rows[0].id}, cfg.auth.token, {expiresIn: cfg.auth.expiration});
                                     return res.status(201).json(builder.buildUserLoggedIn(result.rows[0].id,req.body.name,token));
@@ -59,7 +59,7 @@ router.post('', function(req,res){
                     });
                 })
                 .catch((error) => {
-                    console.log("ERR: query1 did not complete.");
+                    console.log("WARN: email parameter not valid.");
                     console.log(error);
                     client.release();
                     return res.status(400).json({ message: 'Email parameter was not valid.'});

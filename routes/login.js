@@ -27,6 +27,7 @@ router.post('', function(req,res){
                    bcrypt.compare(req.body.password, result.rows[0].password, function (err, bres){
                        client.release();
                        if(bres){
+                           console.log("Login successful.")
                            let token = jwt.sign({id: result.rows[0].id}, cfg.auth.token, {expiresIn: cfg.auth.expiration});
                            return res.status(200).json(builder.buildUserLoggedIn(result.rows[0].id,req.body.name,token));
                        }
@@ -37,7 +38,7 @@ router.post('', function(req,res){
                    });
                })
                .catch((error) => {
-                   console.log("ERR: query did not complete.");
+                   console.log("WARN: email parameter not valid.");
                    console.log(error);
                    client.release();
                    return res.status(500).json({ message: 'Email parameter was not valid.'});

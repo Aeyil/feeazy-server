@@ -32,9 +32,26 @@ function buildFees(result){
     return fees;
 }
 
-function buildPresets(result){
+function buildPresets(rows){
     let presets = [];
+    rows.forEach(row => presets.push(buildPreset(row)));
     return presets;
+}
+
+function buildPreset(row){
+    let preset = {};
+    preset.id = row.id;
+    preset.name = row.name;
+    preset.amount = row.amount;
+    return preset;
+}
+
+function buildPresetRaw(id,name,amount){
+    let preset = {};
+    preset.id = id;
+    preset.name = name;
+    preset.amount = amount;
+    return preset;
 }
 
 module.exports = {
@@ -43,5 +60,7 @@ module.exports = {
     buildMember,
     buildMembers,
     buildFees,
-    buildPresets
+    buildPresets,
+    buildPreset,
+    buildPresetRaw
 }
