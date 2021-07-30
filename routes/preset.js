@@ -101,7 +101,7 @@ router.put('',function (req,res){
             if (result1.rowCount === 0) {
                 console.log("WARN: Insufficient rights/preset not found.");
                 client.release();
-                return res.status(403).json({message: 'Group does not exist or is not accessible.'});
+                return res.status(403).json({message: 'Preset does not exist or is not accessible.'});
             }
             let query2 = 'UPDATE preset pr SET pr.name = $1, pr.amount = $2 WHERE pr.id = $3';
             let values2 = [req.body.name,req.body.amount,req.body.id];
@@ -141,7 +141,7 @@ router.delete('',function (req,res){
             if(result1.rowCount === 0){
                 console.log("WARN: Insufficient rights/preset not found.");
                 client.release();
-                return res.status(403).json({message: 'Group does not exist or is not accessible.'});
+                return res.status(403).json({message: 'Preset does not exist or is not accessible.'});
             }
             let query2 = 'DELETE FROM preset pr WHERE pr.id = $1';
             let values2 = [req.body.id];

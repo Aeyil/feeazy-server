@@ -27,9 +27,28 @@ function buildMembers(result){
     return members;
 }
 
-function buildFees(result){
+function buildFees(rows){
     let fees = [];
+    rows.forEach(row => fees.push(buildFee(row)));
     return fees;
+}
+
+function buildFee(row){
+    let fee = {};
+    fee.id = row.id;
+    fee.user_id = row.user_id;
+    fee.name = row.name;
+    fee.amount = row.amount;
+    return fee;
+}
+
+function buildFeeRaw(id,user_id,name,amount){
+    let fee = {};
+    fee.id = id;
+    fee.user_id = user_id;
+    fee.name = name;
+    fee.amount = amount;
+    return fee;
 }
 
 function buildPresets(rows){
@@ -60,6 +79,8 @@ module.exports = {
     buildMember,
     buildMembers,
     buildFees,
+    buildFee,
+    buildFeeRaw,
     buildPresets,
     buildPreset,
     buildPresetRaw
