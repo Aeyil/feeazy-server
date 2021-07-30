@@ -25,7 +25,7 @@ let initDb = new Promise((resolve, reject) => {
 let getClient = function (){
     return new Promise((resolve,reject) => {
         pool.connect()
-            .then(client => resolve(client))
+            .then(client => reject(client)) //TODO: => resolve
             .catch(() => reject());
     });
 }
