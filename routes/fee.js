@@ -6,7 +6,7 @@ router.get('',function (req,res,next){
     // Expected Parameters
     //   req.body.group_id
     if(!req.body.hasOwnProperty('group_id')){
-        next();
+        return next();
     }
     console.log('First');
 });
