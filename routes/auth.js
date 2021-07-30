@@ -12,7 +12,7 @@ router.use(function(req,res,next){
       }
       else{
           req.userData = JSON.parse("{\"id\": \"" + decoded.id + "\"}");
-          console.log("User " + req.userData.id + "authenticated.");
+          console.log("User " + req.userData.id + " authenticated.");
           next();
       }
    });

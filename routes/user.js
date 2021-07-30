@@ -84,7 +84,7 @@ router.put('',function(req,res){
         client.query(query1,values1).then((result1) => {
             console.log("User update successful.");
             client.release();
-            return res.status(200).json(builder.buildUsers(result1.rows));
+            return res.status(200).json({message: 'User updated.'});
         }).catch((error) => {
             console.log("WARN: name parameter not valid.");
             console.log(error);
