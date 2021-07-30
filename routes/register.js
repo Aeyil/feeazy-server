@@ -12,9 +12,7 @@ router.post('', function(req,res){
     //   req.body.email
     //   req.body.name
     //   req.body.password
-    console.log(req.body.email);
-    console.log(req.body.name);
-    console.log(req.body.password);
+    console.log("Starting registration...");
     console.log(req.body);
     db.getClient()
         .then(client => {
@@ -23,21 +21,21 @@ router.post('', function(req,res){
             client.query(query1,values1)
                 .then(result => {
                     if(result.rowCount > 0){
-                        console.log("1");
+                        console.log("WARN: Email in use.");
                         client.release();
                         return res.status(400).json({ message: ' Email is already in use.' });
                     }
                     const saltRounds = 10;
                     bcrypt.genSalt(saltRounds, function(err,salt){
                         if(err){
-                            console.log("2");
+                            console.log("ERR: Salt could not be generated.");
                             console.log(err);
                             client.release();
                             return res.status(500).json({ message: 'Password Salt could not be generated' });
                         }
                         bcrypt.hash(req.body.password,salt, function(err,hash){
                             if(err){
-                                console.log("3");
+                                console.log("ERR: Hash could not be generated.");
                                 console.log(err);
                                 client.release();
                                 return res.status(500).json({ message: 'Password Hash could not be created.' });
@@ -46,13 +44,13 @@ router.post('', function(req,res){
                             let values2 = [req.body.email,req.body.name,hash,salt];
                             client.query(query2,values2)
                                 .then(result => {
-                                    console.log("4");
+                                    console.log("SUCCESS.");
                                     client.release();
                                     let token = jwt.sign({id: result.rows[0].id}, cfg.auth.token, {expiresIn: cfg.auth.expiration});
                                     return res.status(201).json(builder.buildUserLoggedIn(result.rows[0].id,req.body.name,token));
                                 })
                                 .catch(error => {
-                                    console.log("5");
+                                    console.log("WARN: Email now in use. (race condition)");
                                     console.log(error);
                                     client.release();
                                     return res.status(500).json({ message: 'Email is now taken.' });
@@ -61,13 +59,14 @@ router.post('', function(req,res){
                     });
                 })
                 .catch((error) => {
-                    console.log("6");
+                    console.log("ERR: query1 did not complete.");
                     console.log(error);
                     client.release();
                     return res.status(400).json({ message: 'Email parameter was not valid.'});
                 });
         })
         .catch((error) => {
+            console.log("ERR: Couldn't checkout db client.");
             console.log(error);
             return res.status(503).json({ message: 'Database connection currently not available.' });
         });

@@ -11,6 +11,8 @@ router.post('', function(req,res){
     // Expected Parameters
     //   req.body.email
     //   req.body.password
+    console.log("Starting login...");
+    console.log(req.body);
    db.getClient()
        .then(client => {
            let query = 'SELECT u.id, u.email, u.password FROM "user" u WHERE u.email = $1';
@@ -18,6 +20,7 @@ router.post('', function(req,res){
            client.query(query,values)
                .then(result => {
                    if(result.rowCount === 0){
+                       console.log("WARN: Incorrect email given.");
                        client.release();
                        return res.status(400).json({ message: 'Email and/or Password not valid.'});
                    }
@@ -28,16 +31,21 @@ router.post('', function(req,res){
                            return res.status(200).json(builder.buildUserLoggedIn(result.rows[0].id,req.body.name,token));
                        }
                        else{
+                           console.log("WARN: Incorrect password given.");
                            return res.status(400).json({ message: 'Email and/or Password not valid.'});
                        }
                    });
                })
-               .catch(() => {
+               .catch((error) => {
+                   console.log("ERR: query did not complete.");
+                   console.log(error);
                    client.release();
                    return res.status(500).json({ message: 'Email parameter was not valid.'});
                })
        })
-       .catch(() => {
+       .catch((error) => {
+           console.log("ERR: Couldn't checkout db client.");
+           console.log(error);
            return res.status(503).json({ message: 'Database connection currently not available.' });
        })
 });
