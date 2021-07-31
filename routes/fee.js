@@ -135,7 +135,7 @@ router.post('',function (req,res){
                 client.release();
                 return res.status(403).json({message: 'Group does not exist or is not accessible.'});
             }
-            let query2 = 'INSERT INTO fee (group_id,user_id,name,amount,created_on) VALUES ($1,$2,$3,$4,CURRENT_TIMESTAMP) RETURNING id';
+            let query2 = 'INSERT INTO fee (group_id,user_id,name,amount,created_on,status) VALUES ($1,$2,$3,$4,CURRENT_TIMESTAMP,"accepted") RETURNING id';
             let values2 = [req.body.group_id,req.body.user_id,req.body.name,req.body.amount];
             client.query(query2,values2).then((result2) => {
                 console.log("Fee creation successful.");
