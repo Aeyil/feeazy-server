@@ -8,6 +8,7 @@ const router = express.Router();
 router.get('',function(req,res,next){
     // Expected Parameters
     //   req.body.group_id
+    console.log(req.query);
     if(req.query.hasOwnProperty("group_id")){
         return next();
     }
