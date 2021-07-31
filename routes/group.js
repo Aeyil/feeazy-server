@@ -76,7 +76,7 @@ router.post('',function(req,res){
                 let query2 = 'INSERT INTO part_of (group_id,user_id) VALUES ($1,$2)';
                 let values2 = [result1.rows[0].id,req.userData.id];
                 client.query(query2,values2).then((result2) => {
-                    client.query('COMMIT').then((result1) => {
+                    client.query('COMMIT').then((result3) => {
                         console.log("Transaction committed.");
                         console.log("Group creation successful.");
                         client.release();
