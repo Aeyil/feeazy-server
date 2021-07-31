@@ -14,7 +14,7 @@ router.post('', function(req,res){
     console.log("Starting login...");
     console.log(req.body);
    db.getClient().then(client => {
-       let query = 'SELECT u.id, u.email, u.password FROM "user" u WHERE u.email = $1';
+       let query = 'SELECT u.id, u.name, u.password FROM "user" u WHERE u.email = $1';
        let values = [req.body.email];
        client.query(query,values).then(result => {
            if(result.rowCount === 0){
@@ -27,7 +27,7 @@ router.post('', function(req,res){
                if(bres){
                    console.log("Login successful.")
                    let token = jwt.sign({id: result.rows[0].id}, cfg.auth.token, {expiresIn: cfg.auth.expiration});
-                   return res.status(200).json(builder.buildUserLoggedIn(result.rows[0].id,req.body.name,token));
+                   return res.status(200).json(builder.buildUserLoggedIn(result.rows[0].id,result.rows[0].name,token));
                }
                else{
                    console.log("WARN: Incorrect password given.");
