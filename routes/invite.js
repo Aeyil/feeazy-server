@@ -29,7 +29,7 @@ router.post('', function(req,res){
                     return res.status(400).json({ message: 'User does not exist.'});
                 }
                 let query3 = 'INSERT INTO part_of (group_id,user_id) VALUES ($1,$2)';
-                let values3 = [req.body.id,result2.rows[0].id];
+                let values3 = [req.body.group_id,result2.rows[0].id];
                 client.query(query3,values3).then(result4 => {
                     console.log("User invite successful.");
                     client.release();
