@@ -15,7 +15,7 @@ router.post('', function(req,res){
         let query1 = 'SELECT grp.leader_id FROM "group" grp WHERE grp.id = $1';
         let values1 = [req.body.group_id];
         client.query(query1,values1).then(result1 => {
-            if(result1.rowCount === 0 || result1.rows[0].leader_id !== req.userData.id){
+            if(result1.rowCount === 0 || result1.rows[0].leader_id != req.userData.id){
                 console.log("WARN: Insufficient rights/group not found.");
                 client.release();
                 return res.status(403).json({ message: 'Group does not exist or user is not leader of group.' });
