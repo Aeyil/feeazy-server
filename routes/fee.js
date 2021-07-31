@@ -140,7 +140,7 @@ router.post('',function (req,res){
             client.query(query2,values2).then((result2) => {
                 console.log("Fee creation successful.");
                 client.release();
-                return res.status(200).json(builder.buildFeeRaw(result2.rows[0].id,req.body.user_id,req.body.name,req.body.amount));
+                return res.status(200).json(builder.buildFeeRaw(result2.rows[0].id,req.body.user_id,req.body.name,req.body.amount,"accepted"));
             }).catch((error) => {
                 console.log("ERR: A parameter was valid, but is not anymore.");
                 console.log(error);

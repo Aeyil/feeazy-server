@@ -53,15 +53,17 @@ function buildFee(row){
     fee.user_id = row.user_id;
     fee.name = row.name;
     fee.amount = row.amount.substr(1,row.amount.length-1);
+    fee.status = row.status;
     return fee;
 }
 
-function buildFeeRaw(id,user_id,name,amount){
+function buildFeeRaw(id,user_id,name,amount,status){
     let fee = {};
     fee.id = id;
     fee.user_id = user_id;
     fee.name = name;
     fee.amount = amount.substr(1,amount.length-1);
+    fee.status = status;
     return fee;
 }
 
