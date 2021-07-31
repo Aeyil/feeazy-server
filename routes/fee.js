@@ -23,7 +23,7 @@ router.get('',function (req,res,next){
                 client.release();
                 return res.status(403).json({message: 'Group does not exist or is not accessible.'});
             }
-            let query2 = 'SELECT fe.* FROM fee fe WHERE fe.group_id = $1 AND fe.user_id = $2';
+            let query2 = 'SELECT fe.id,fe.user_id,fe.name,fe.amount::numeric,fe.status FROM fee fe WHERE fe.group_id = $1 AND fe.user_id = $2';
             let values2 = [req.query.group_id,req.query.user_id];
             client.query(query2,values2).then((result2) => {
                 console.log("Fee retrieval (user in group) successful.");
@@ -66,7 +66,7 @@ router.get('',function (req,res,next){
                 client.release();
                 return res.status(403).json({message: 'Group does not exist or is not accessible.'});
             }
-            let query2 = 'SELECT fe.* FROM fee fe WHERE fe.group_id = $1';
+            let query2 = 'SELECT fe.id,fe.user_id,fe.name,fe.amount::numeric,fe.status FROM fee fe WHERE fe.group_id = $1';
             let values2 = [req.query.group_id];
             client.query(query2,values2).then((result2) => {
                 console.log("Fee retrieval (group) successful.");
@@ -98,7 +98,7 @@ router.get('',function (req,res){
     console.log("Starting fee retrieval (user)...");
     console.log(req.query);
     db.getClient().then((client) =>{
-        let query1 = 'SELECT fe.* FROM fee fe WHERE fe.user_id = $1';
+        let query1 = 'SELECT fe.id,fe.user_id,fe.name,fe.amount::numeric,fe.status FROM fee fe WHERE fe.user_id = $1';
         let values1 = [req.userData.id];
         client.query(query1,values1).then((result1) => {
             console.log("Fee retrieval (user) successful.");

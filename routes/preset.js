@@ -19,7 +19,7 @@ router.get('',function (req,res){
                 client.release();
                 return res.status(403).json({message: 'Group does not exist or is not accessible.'});
             }
-            let query2 = 'SELECT pr.id,pr.name,pr.amount FROM preset pr WHERE pr.group_id = $1';
+            let query2 = 'SELECT pr.id,pr.name,pr.amount::numeric FROM preset pr WHERE pr.group_id = $1';
             let values2 = [req.query.group_id];
             client.query(query2,values2).then((result2) => {
                 console.log("Preset retrieval successful.");
