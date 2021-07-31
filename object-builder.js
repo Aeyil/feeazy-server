@@ -52,7 +52,7 @@ function buildFee(row){
     fee.id = row.id;
     fee.user_id = row.user_id;
     fee.name = row.name;
-    fee.amount = row.amount;
+    fee.amount = row.amount.substr(1,row.amount.length-1);
     return fee;
 }
 
@@ -61,7 +61,7 @@ function buildFeeRaw(id,user_id,name,amount){
     fee.id = id;
     fee.user_id = user_id;
     fee.name = name;
-    fee.amount = amount;
+    fee.amount = amount.substr(1,amount.length-1);
     return fee;
 }
 
