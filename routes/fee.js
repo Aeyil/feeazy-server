@@ -177,7 +177,7 @@ router.put('',function (req,res){
                 return res.status(403).json({message: 'Fee does not exist or is not accessible.'});
             }
             let query2 = 'UPDATE fee fe SET status = $1 WHERE fe.id = $2';
-            let values2 = [req.body.status,req.body.id];
+            let values2 = [req.body.status.toLowerCase(),req.body.id];
             client.query(query2,values2).then((result2) =>{
                 console.log("Fee update successful.")
                 client.release();
