@@ -24,7 +24,7 @@ router.post('', function(req,res){
             let values2 = [req.body.email];
             client.query(query2,values2).then(result2 => {
                 if(result2.rowCount === 0){
-                    console.log("WARN: User does not exist.")
+                    console.log("WARN: User does not exist.");
                     client.release();
                     return res.status(400).json({ message: 'User does not exist.'});
                 }

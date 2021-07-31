@@ -4,6 +4,50 @@ const builder = require("../object-builder");
 const app = express();
 const router = express.Router();
 
+// Returns all Fees for a user in a group
+router.get('',function (req,res,next){
+    // Expected Parameters
+    //   req.query.group_id
+    //   req.query.user_id
+    if(!req.query.hasOwnProperty('user_id')){
+        return next();
+    }
+    console.log("Starting fee retrieval (user in group)...");
+    console.log(req.query);
+    db.getClient().then((client) =>{
+        let query1 = 'SELECT * FROM part_of po WHERE po.group_id = $1 AND po.user_id = $2';
+        let values1 = [req.query.group_id,req.userData.id];
+        client.query(query1,values1).then((result1 => {
+            if(result1.rowCount === 0){
+                console.log("WARN: Insufficient rights/group not found.");
+                client.release();
+                return res.status(403).json({message: 'Group does not exist or is not accessible.'});
+            }
+            let query2 = 'SELECT fe.* FROM fee fe WHERE fe.group_id = $1 AND fe.user_id = $2';
+            let values2 = [req.query.group_id,req.query.user_id];
+            client.query(query2,values2).then((result2) => {
+                console.log("Fee retrieval (user in group) successful.");
+                client.release();
+                return res.status(200).json(builder.buildFees(result2.rows));
+            }).catch((error) => {
+                console.log("WARN: User id parameter is not valid.");
+                console.log(error);
+                client.release();
+                return res.status(500).json({ message: 'User id parameter not valid.'});
+            })
+        })).catch((error) => {
+            console.log("WARN: group_id parameter not valid.");
+            console.log(error);
+            client.release();
+            return res.status(400).json({ message: 'Group id parameter not valid.'});
+        });
+    }).catch((error) => {
+        console.log("ERR: Couldn't checkout db client.");
+        console.log(error);
+        return res.status(503).json({ message: 'Database connection currently not available.' });
+    });
+});
+
 // Returns all fees of a single group
 router.get('',function (req,res,next){
     // Expected Parameters
@@ -47,7 +91,7 @@ router.get('',function (req,res,next){
     });
 });
 
-// Returns all fees of a single user
+// Returns all fees of the logged in user
 router.get('',function (req,res){
     // Expected Parameters
     //   - none
