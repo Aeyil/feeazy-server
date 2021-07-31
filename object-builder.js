@@ -17,7 +17,14 @@ function buildGroup(row){
     group.id = row.id;
     group.leader_id = row.leader_id;
     group.name = row.name;
-    group.last_changed = row.last_changed;
+    return group;
+}
+
+function buildGroupRaw(id,leader_id,name){
+    let group = {};
+    group.id = id;
+    group.leader_id = leader_id;
+    group.name = name;
     return group;
 }
 
@@ -84,6 +91,7 @@ module.exports = {
     buildUserLoggedIn,
     buildGroups,
     buildGroup,
+    buildGroupRaw,
     buildUsers,
     buildUser,
     buildFees,

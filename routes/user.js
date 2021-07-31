@@ -57,6 +57,11 @@ router.get('',function(req,res){
         let query1 = 'SELECT u.id, u.name FROM "user" u WHERE u.id = $1';
         let values1 = [req.body.id];
         client.query(query1,values1).then((result1) => {
+            if(result1.rowCount === 0){
+                console.log("WARN: User not found.");
+                client.release();
+                return res.status(404).json({message: 'User could not be found.'});
+            }
             console.log("User retrieval (single) successful.");
             client.release();
             return res.status(200).json(builder.buildUser(result1.rows[0]));
@@ -127,20 +132,20 @@ router.delete('',function(req,res){
                                 console.log("Transaction committed.");
                                 console.log("User deletion successful.");
                                 client.release();
-                                return res.status(200).json({message: 'User has been deleted.'})
+                                return res.status(200).json({message: 'User has been deleted.'});
                             }).catch((error) => {
                                 console.log("ERR: Could not commit transaction.");
                                 console.log(error);
                                 client.query('ABORT').then(() => {
                                     console.log("Transaction aborted.")
                                     client.release();
-                                    return res.status(500).json({message: 'User could not be deleted.'})
+                                    return res.status(500).json({message: 'User could not be deleted.'});
                                 }).catch((error) => {
                                     console.log("ERR: Could not abort transaction.");
                                     console.log(error);
                                     client.release();
-                                    return res.status(500).json({message: 'User could not be deleted.'})
-                                })
+                                    return res.status(500).json({message: 'User could not be deleted.'});
+                                });
                             });
                         }).catch((error) => {
                             console.log("ERR: Could not delete user.");
@@ -148,13 +153,13 @@ router.delete('',function(req,res){
                             client.query('ABORT').then(() => {
                                 console.log("Transaction aborted.")
                                 client.release();
-                                return res.status(500).json({message: 'User could not be deleted.'})
+                                return res.status(500).json({message: 'User could not be deleted.'});
                             }).catch((error) => {
                                 console.log("ERR: Could not abort transaction.");
                                 console.log(error);
                                 client.release();
-                                return res.status(500).json({message: 'User could not be deleted.'})
-                            })
+                                return res.status(500).json({message: 'User could not be deleted.'});
+                            });
                         });
                     }).catch((error) => {
                         console.log("ERR: Could not delete group membership of user.");
@@ -162,13 +167,13 @@ router.delete('',function(req,res){
                         client.query('ABORT').then(() => {
                             console.log("Transaction aborted.")
                             client.release();
-                            return res.status(500).json({message: 'User could not be deleted.'})
+                            return res.status(500).json({message: 'User could not be deleted.'});
                         }).catch((error) => {
                             console.log("ERR: Could not abort transaction.");
                             console.log(error);
                             client.release();
-                            return res.status(500).json({message: 'User could not be deleted.'})
-                        })
+                            return res.status(500).json({message: 'User could not be deleted.'});
+                        });
                     });
                 }).catch((error) => {
                     console.log("ERR: Could not delete fees of user.");
@@ -176,19 +181,19 @@ router.delete('',function(req,res){
                     client.query('ABORT').then(() => {
                         console.log("Transaction aborted.")
                         client.release();
-                        return res.status(500).json({message: 'User could not be deleted.'})
+                        return res.status(500).json({message: 'User could not be deleted.'});
                     }).catch((error) => {
                         console.log("ERR: Could not abort transaction.");
                         console.log(error);
                         client.release();
-                        return res.status(500).json({message: 'User could not be deleted.'})
-                    })
+                        return res.status(500).json({message: 'User could not be deleted.'});
+                    });
                 });
             }).catch((error) => {
                 console.log("ERR: Could not begin transaction.")
                 console.log(error);
                 client.release();
-                return res.status(500).json({message: 'User could not be deleted.'})
+                return res.status(500).json({message: 'User could not be deleted.'});
             });
         }).catch((error) => {
             console.log("ERR: User leadership query failed.");

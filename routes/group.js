@@ -35,7 +35,6 @@ router.get('', function(req,res,next){
         console.log(error);
         return res.status(503).json({ message: 'Database connection currently not available.' });
     });
-
 });
 
 // Returns all groups of a single user
@@ -64,166 +63,255 @@ router.get('', function(req,res){
     });
 });
 
-
-
-//------------------------------------ OLD PART --------------------------------------------------------
-// TODO: UPDATE THIS PART
-
-// TODO: Split
-router.post('', function(req,res){
-    // TODO: THIS SHOULD BE A TRANSACTION
+// Creates a new group
+router.post('',function(req,res){
     // Expected Parameters
-    //   req.body.id (optional)
-    //   req.body.leader_id (optional)
     //   req.body.name
-    db.getClient()
-        .then(client => {
-            if('id' in req.body){ // TODO: working?
-                let query1 = 'SELECT grp.leader_id FROM "group" grp WHERE grp.id = $1';
-                let values1 = [req.body.id];
-                client.query(query1,values1)
-                    .then(result1 => {
-                        if(result1.rows[0].leader_id !== req.userData.id){
+    console.log("Starting group creation...")
+    db.getClient().then((client) => {
+        client.query('BEGIN').then(() => {
+            let query1 = 'INSERT INTO "group" (leader_id,last_changed,name) VALUES ($1,CURRENT_TIMESTAMP,$2) RETURNING id';
+            let values1 = [req.userData.id,req.body.name];
+            client.query(query1,values1).then((result1) => {
+                let query2 = 'INSERT INTO part_of (group_id,user_id) VALUES ($1,$2) RETURNING id';
+                let values2 = [result1.rows[0].id,req.userData.id];
+                client.query(query2,values2).then((result2) => {
+                    client.query('COMMIT').then((result1) => {
+                        console.log("Transaction committed.");
+                        console.log("Group creation successful.");
+                        client.release();
+                        return res.status(200).json(builder.buildGroupRaw(result1.rows[0].id,req.userData.id,req.body.name));
+                    }).catch((error) => {
+                        console.log("ERR: Could not commit transaction.");
+                        console.log(error);
+                        client.query('ABORT').then(() => {
+                            console.log("Transaction aborted.")
                             client.release();
-                            return res.status(403).json({ message: 'Group cannot be altered by this user.' });
-                        }
-                        let query2 = 'SELECT * FROM part_of po WHERE po.group_id = $1 AND po.user_id = $2';
-                        let values2 = [req.body.id,req.body.leader_id];
-                        client.query(query2,values2)
-                            .then(result2 => {
-                                if(result2.rowCount === 0){
-                                    client.release();
-                                    return res.status(400).json({ message: 'New leader must be part of group.' });
-                                }
-                                let query3 = 'UPDATE "group" SET leader_id = $1, name = $2, last_changed = CURRENT_TIMESTAMP WHERE id = $3';
-                                let values3 = [req.body.leader_id,req.body.name,req.body.id];
-                                client.query(query3,values3)
-                                    .then(result3 => {
-                                        let query4 = 'SELECT * FROM "group" grp WHERE grp.id = $1';
-                                        let values4 = [req.body.id];
-                                        client.query(query4, values4)
-                                            .then(result4 => {
-                                                client.release();
-                                                return res.status(200).json(builder.buildGroup(result4.rows[0]));
-                                            })
-                                            .catch(() => {
-                                                client.release();
-                                                return res.status(500).json({message: 'Couldn\'t retrieve group.'});
-                                            });
-                                    })
-                                    .catch(() => {
-                                        client.release();
-                                        return res.status(400).json({message: 'Group name or leader parameter not valid.'});
-                                    });
-                            })
-                            .catch(() => {
-                                client.release();
-                                return res.status(400).json({message: 'Group or leader parameter not valid.'});
-                            });
-                    })
-                    .catch(() => {
-                        client.release();
-                        return res.status(400).json({message: 'Group parameter not valid.'});
+                            return res.status(500).json({message: 'Group could not be created.'})
+                        }).catch((error) => {
+                            console.log("ERR: Could not abort transaction.");
+                            console.log(error);
+                            client.release();
+                            return res.status(500).json({message: 'Group could not be created.'})
+                        });
                     });
-            }
-            else{
-                let query1 = 'INSERT INTO "group" (leader_id,last_changed,name) VALUES ($1,CURRENT_TIMESTAMP,$2) RETURNING id';
-                let values1 = [req.userData.id, req.body.name];
-                client.query(query1, values1)
-                    .then(result1 => {
-                        let query2 = 'INSERT INTO part_of (group_id,user_id) VALUES ($1,$2)';
-                        let values2 = [result1.rows[0].id, req.userData.id];
-                        client.query(query2, values2)
-                            .then(result2 => {
-                                let query3 = 'SELECT * FROM "group" grp WHERE grp.id = $1';
-                                let values3 = [result1.rows[0].id];
-                                client.query(query3, values3)
-                                    .then(result3 => {
-                                        client.release();
-                                        return res.status(200).json(builder.buildGroup(result3.rows[0]));
-                                    })
-                                    .catch(() => {
-                                        client.release();
-                                        return res.status(500).json({message: 'Couldn\'t retrieve group.'});
-                                    });
-                            })
-                            .catch(() => {
-                                client.release();
-                                return res.status(500).json({message: 'Couldn\'t add user to member list.'});
-                            });
-                    })
-                    .catch(() => {
+                }).catch((error) => {
+                    console.log("ERR: Could not create group leader membership.");
+                    console.log(error);
+                    client.query('ABORT').then(() => {
+                        console.log("Transaction aborted.")
                         client.release();
-                        return res.status(400).json({message: 'Group name parameter not valid.'});
+                        return res.status(500).json({message: 'Group could not be created.'})
+                    }).catch((error) => {
+                        console.log("ERR: Could not abort transaction.");
+                        console.log(error);
+                        client.release();
+                        return res.status(500).json({message: 'Group could not be created.'})
                     });
-            }
-        })
-        .catch(() => {
-            return res.status(503).json({ message: 'Database connection currently not available.' });
+                });
+            }).catch((error) => {
+                console.log("ERR: Could not create group.");
+                console.log(error);
+                client.query('ABORT').then(() => {
+                    console.log("Transaction aborted.")
+                    client.release();
+                    return res.status(500).json({message: 'Group could not be created.'})
+                }).catch((error) => {
+                    console.log("ERR: Could not abort transaction.");
+                    console.log(error);
+                    client.release();
+                    return res.status(500).json({message: 'Group could not be created.'})
+                });
+            });
+        }).catch((error) => {
+            console.log("ERR: Could not begin transaction.")
+            console.log(error);
+            client.release();
+            return res.status(500).json({message: 'Group could not be created.'})
         });
+    }).catch((error) => {
+        console.log("ERR: Couldn't checkout db client.");
+        console.log(error);
+        return res.status(503).json({ message: 'Database connection currently not available.' });
+    });
 });
 
-router.delete('', function(req,res){
-    // TODO: THIS SHOULD BE A TRANSACTION
+// Updates an existing group
+router.put('',function(req,res){
     // Expected Parameters
     //   req.body.id
-    db.getClient()
-        .then(client => {
-            let query1 = 'SELECT grp.leader_id FROM "group" grp WHERE grp.id = $1';
-            let values1 = [req.body.id];
-            client.query(query1,values1)
-                .then(result1 => {
-                    if(result1.rows[0].leader_id !== req.userData.id){
-                        client.release();
-                        return res.status(403).json({ message: 'Must be leader of group to add members.' });
-                    }
-                    let query2 = 'DELETE FROM fee WHERE group_id = $1';
-                    let values2 = [req.body.id];
-                    client.query(query2,values2)
-                        .then(() =>{
-                            let query3 = 'DELETE FROM part_of WHERE group_id = $1';
-                            let values3 = [req.body.id];
-                            client.query(query3, values3)
-                                .then(() => {
-                                    let query4 = 'DELETE FROM preset WHERE group_id = $1';
-                                    let values4 = [req.body.id];
-                                    client.query(query4,values4)
-                                        .then(() => {
-                                            let query5 = 'DELETE FROM "group" WHERE id = $1';
-                                            let values5 = [req.body.id];
-                                            client.query(query5,values5)
-                                                .then(() => {
-                                                    client.release();
-                                                    return res.status(200).json({});
-                                                })
-                                                .catch(() => {
-                                                    client.release();
-                                                    return res.status(400).json({message: 'Couldn\'t delete group.'});
-                                                });
-                                        })
-                                        .catch(() => {
-                                            client.release();
-                                            return res.status(500).json({message: 'Couldn\'t delete presets.'});
-                                        });
-                                })
-                                .catch(() => {
-                                    client.release();
-                                    return res.status(500).json({message: 'Couldn\'t delete members.'});
-                                });
-                        })
-                        .catch(() =>{
-                            client.release();
-                            return res.status(500).json({message: 'Couldn\'t delete fees.'});
-                        });
-                })
-                .catch(() => {
+    //   req.body.leader_id
+    //   req.body.name
+    console.log("Starting group update...");
+    console.log(req.body);
+    db.getClient().then((client) => {
+        let query1 = 'SELECT grp.leader_id FROM "group" grp WHERE grp.id = $1';
+        let values1 = [req.body.id];
+        client.query(query1,values1).then((result1) => {
+            if(result1.rowCount === 0 || result1.rows[0].leader_id !== req.userData.id){
+                console.log("WARN: Insufficient rights/group not found.");
+                client.release();
+                return res.status(403).json({message: 'Group does not exist or cannot be altered by user.'});
+            }
+            let query2 = 'SELECT * FROM part_of po WHERE po.group_id = $1 AND po.user_id = $2';
+            let values2 = [req.body.id,req.body.leader_id];
+            client.query(query2,values2).then((result2) => {
+                if(result2.rowCount === 0){
+                    console.log("WARN: New leader has to be in group.");
                     client.release();
-                    return res.status(400).json({message: 'Group parameter not valid.'});
+                    return res.status(403).json({message: 'New group leader must be member of group.'});
+                }
+                let query3 = 'UPDATE "group" grp SET leader_id = $1, name = $2 WHERE grp.id = $3';
+                let values3 = [req.body.leader_id, req.body.name, req.body.id];
+                client.query(query3,values3).then((result3) => {
+                    console.log("Group update successful.");
+                    client.release();
+                    return res.status(200).json({message: 'Group has been updated.'});
+                }).catch((error) => {
+                    console.log("WARN: Parameters are not valid.")
+                    console.log(error);
+                    client.release();
+                    return res.status(400).json({message: 'Parameters not valid.'})
                 });
-        })
-        .catch(() => {
-            return res.status(503).json({ message: 'Database connection currently not available.' });
+            }).catch((error) => {
+                console.log("WARN: Group id or leader id parameter is not valid.")
+                console.log(error);
+                client.release();
+                return res.status(400).json({message: 'Parameters not valid.'})
+            });
+        }).catch((error) => {
+            console.log("WARN: Group id parameter is not valid.")
+            console.log(error);
+            client.release();
+            return res.status(400).json({message: 'Group id is not valid.'})
         });
+    }).catch((error) => {
+        console.log("ERR: Couldn't checkout db client.");
+        console.log(error);
+        return res.status(503).json({ message: 'Database connection currently not available.' });
+    });
+});
+
+// Deletes a group
+router.delete('',function(req,res){
+    // Expected Parameters
+    //   req.body.id
+    console.log("Starting group deletion...");
+    console.log(req.body);
+    db.getClient().then((client) => {
+        let query1 = 'SELECT grp.leader_id FROM "group" grp WHERE grp.id = $1';
+        let values1 = [req.body.id];
+        client.query(query1,values1).then((result1) => {
+            if(result1.rowCount === 0 || result1.rows[0].leader_id !== req.userData.id){
+                console.log("WARN: Insufficient rights/group not found.")
+                client.release();
+                return res.status(403).json({message: 'Group does not exist or cannot deleted by this user.'});
+            }
+            client.query('BEGIN').then(() => {
+                let query2 = 'DELETE FROM preset pr WHERE pr.group_id = $1';
+                let values2 = [req.body.id];
+                client.query(query2,values2).then((result2) => {
+                    let query3 = 'DELETE FROM fee fe WHERE fe.group_id = $1';
+                    let values3 = [req.body.id];
+                    client.query(query3,values3).then((result3) => {
+                        let query4 = 'DELETE FROM part_of po WHERE po.group_id = $1';
+                        let values4 = [req.body.id];
+                        client.query(query4,values4).then((result4) => {
+                            let query5 = 'DELETE FROM "group" grp WHERE grp.id = $1';
+                            let values5 = [req.body.id];
+                            client.query(query5,values5).then((result5) => {
+                                client.query('COMMIT').then(() => {
+                                    console.log("Transaction committed.");
+                                    console.log("Group deletion successful.");
+                                    client.release();
+                                    return res.status(200).json({message: 'Group has been deleted.'});
+                                }).catch((error) => {
+                                    console.log("ERR: Could not commit transaction.");
+                                    console.log(error);
+                                    client.query('ABORT').then(() => {
+                                        console.log("Transaction aborted.")
+                                        client.release();
+                                        return res.status(500).json({message: 'Group could not be deleted.'})
+                                    }).catch((error) => {
+                                        console.log("ERR: Could not abort transaction.");
+                                        console.log(error);
+                                        client.release();
+                                        return res.status(500).json({message: 'Group could not be deleted.'})
+                                    });
+                                });
+                            }).catch((error) => {
+                                console.log("ERR: Could not delete group.");
+                                console.log(error);
+                                client.query('ABORT').then(() => {
+                                    console.log("Transaction aborted.")
+                                    client.release();
+                                    return res.status(500).json({message: 'Group could not be deleted.'})
+                                }).catch((error) => {
+                                    console.log("ERR: Could not abort transaction.");
+                                    console.log(error);
+                                    client.release();
+                                    return res.status(500).json({message: 'Group could not be deleted.'})
+                                });
+                            });
+                        }).catch((error) => {
+                            console.log("ERR: Could not delete group member.");
+                            console.log(error);
+                            client.query('ABORT').then(() => {
+                                console.log("Transaction aborted.")
+                                client.release();
+                                return res.status(500).json({message: 'Group could not be deleted.'})
+                            }).catch((error) => {
+                                console.log("ERR: Could not abort transaction.");
+                                console.log(error);
+                                client.release();
+                                return res.status(500).json({message: 'Group could not be deleted.'})
+                            });
+                        });
+                    }).catch((error) => {
+                        console.log("ERR: Could not delete group fees.");
+                        console.log(error);
+                        client.query('ABORT').then(() => {
+                            console.log("Transaction aborted.")
+                            client.release();
+                            return res.status(500).json({message: 'Group could not be deleted.'})
+                        }).catch((error) => {
+                            console.log("ERR: Could not abort transaction.");
+                            console.log(error);
+                            client.release();
+                            return res.status(500).json({message: 'Group could not be deleted.'})
+                        });
+                    });
+                }).catch((error) => {
+                    console.log("ERR: Could not delete group presets.");
+                    console.log(error);
+                    client.query('ABORT').then(() => {
+                        console.log("Transaction aborted.")
+                        client.release();
+                        return res.status(500).json({message: 'Group could not be deleted.'})
+                    }).catch((error) => {
+                        console.log("ERR: Could not abort transaction.");
+                        console.log(error);
+                        client.release();
+                        return res.status(500).json({message: 'Group could not be deleted.'})
+                    });
+                });
+            }).catch((error) => {
+                console.log("ERR: Could not begin transaction.")
+                console.log(error);
+                client.release();
+                return res.status(500).json({message: 'Group could not be deleted.'})
+            });
+        }).catch((error) => {
+            console.log("WARN: Group id parameter not valid.");
+            console.log(error);
+            client.release();
+            return res.status(400).json({ message: 'Group id parameter not valid.' });
+        });
+    }).catch((error) => {
+        console.log("ERR: Couldn't checkout db client.");
+        console.log(error);
+        return res.status(503).json({ message: 'Database connection currently not available.' });
+    });
 });
 
 module.exports = router;
