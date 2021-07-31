@@ -73,7 +73,7 @@ router.post('',function(req,res){
             let query1 = 'INSERT INTO "group" (leader_id,last_changed,name) VALUES ($1,CURRENT_TIMESTAMP,$2) RETURNING id';
             let values1 = [req.userData.id,req.body.name];
             client.query(query1,values1).then((result1) => {
-                let query2 = 'INSERT INTO part_of (group_id,user_id) VALUES ($1,$2) RETURNING id';
+                let query2 = 'INSERT INTO part_of (group_id,user_id) VALUES ($1,$2)';
                 let values2 = [result1.rows[0].id,req.userData.id];
                 client.query(query2,values2).then((result2) => {
                     client.query('COMMIT').then((result1) => {
