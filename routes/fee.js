@@ -7,15 +7,15 @@ const router = express.Router();
 // Returns all fees of a single group
 router.get('',function (req,res,next){
     // Expected Parameters
-    //   req.body.group_id
-    if(!req.body.hasOwnProperty('group_id')){
+    //   req.query.group_id
+    if(!req.query.hasOwnProperty('group_id')){
         return next();
     }
     console.log("Starting fee retrieval (group)...");
-    console.log(req.body);
+    console.log(req.query);
     db.getClient().then((client) =>{
         let query1 = 'SELECT * FROM part_of po WHERE po.group_id = $1 AND po.user_id = $2';
-        let values1 = [req.body.group_id,req.userData.id];
+        let values1 = [req.query.group_id,req.userData.id];
         client.query(query1,values1).then((result1 => {
             if(result1.rowCount === 0){
                 console.log("WARN: Insufficient rights/group not found.");
@@ -23,7 +23,7 @@ router.get('',function (req,res,next){
                 return res.status(403).json({message: 'Group does not exist or is not accessible.'});
             }
             let query2 = 'SELECT fe.* FROM fee fe WHERE fe.group_id = $1';
-            let values2 = [req.body.group_id];
+            let values2 = [req.query.group_id];
             client.query(query2,values2).then((result2) => {
                 console.log("Fee retrieval (group) successful.");
                 client.release();
@@ -52,7 +52,7 @@ router.get('',function (req,res){
     // Expected Parameters
     //   - none
     console.log("Starting fee retrieval (user)...");
-    console.log(req.body);
+    console.log(req.query);
     db.getClient().then((client) =>{
         let query1 = 'SELECT fe.* FROM fee fe WHERE fe.user_id = $1';
         let values1 = [req.userData.id];

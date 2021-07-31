@@ -7,12 +7,12 @@ const router = express.Router();
 // Returns all presets of a group
 router.get('',function (req,res){
     // Expected Parameters
-    //   req.body.group_id
+    //   req.query.group_id
     console.log("Starting preset retrieval...");
-    console.log(req.body);
+    console.log(req.query);
     db.getClient().then((client) =>{
         let query1 = 'SELECT po.group_id FROM part_of po WHERE po.group_id = $1 AND po.user_id = $2';
-        let values1 = [req.body.group_id,req.userData.id];
+        let values1 = [req.query.group_id,req.userData.id];
         client.query(query1,values1).then((result1 => {
             if(result1.rowCount === 0){
                 console.log("WARN: Insufficient rights/group not found.");
@@ -20,7 +20,7 @@ router.get('',function (req,res){
                 return res.status(403).json({message: 'Group does not exist or is not accessible.'});
             }
             let query2 = 'SELECT pr.id,pr.name,pr.amount FROM preset pr WHERE pr.group_id = $1';
-            let values2 = [req.body.group_id];
+            let values2 = [req.query.group_id];
             client.query(query2,values2).then((result2) => {
                 console.log("Preset retrieval successful.");
                 client.release();

@@ -7,14 +7,14 @@ const router = express.Router();
 // Returns a single group to a user
 router.get('', function(req,res,next){
     // Expected Parameters
-    //   req.body.id
-    if(!req.body.hasOwnProperty("id")){
+    //   req.query.id
+    if(!req.query.hasOwnProperty("id")){
         return next();
     }
     console.log("Starting group retrieval (single)...")
     db.getClient().then(client => {
         let query1 = 'SELECT grp.* FROM part_of po,"group" grp WHERE po.group_id = $1 AND po.user_id = $2 AND po.group_id = grp.id';
-        let values1 = [req.body.id,req.userData.id];
+        let values1 = [req.query.id,req.userData.id];
         client.query(query1,values1).then(result1 => {
             if(result1.rowCount === 0){
                 console.log("WARN: Insufficient rights/group not found.");
@@ -42,7 +42,7 @@ router.get('', function(req,res){
     // Expected Parameters
     //   - none
     console.log("Starting group retrieval (all)...");
-    console.log(req.body);
+    console.log(req.query);
     db.getClient().then((client) => {
         let query1 = 'SELECT grp.* FROM "group" grp, part_of po WHERE po.user_id = $1 AND po.group_id = grp.id';
         let values1 = [req.userData.id];
